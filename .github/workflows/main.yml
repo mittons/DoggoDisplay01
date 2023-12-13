@@ -1,0 +1,95 @@
+name: Doggo Display CI/CD
+
+on: [push]
+
+jobs:
+    setup-and-test:
+        runs-on: ubuntu-latest
+
+        steps: 
+          - uses: actions/checkout@v4
+
+          - name: Setup Flutter
+            uses: subosito/flutter-action@v2
+            with:
+              flutter-version: '3.13.9'
+              cache: true
+
+          - name: Install Flutter Dependencies
+            run: flutter pub get
+
+          - name: Set up Python
+            uses: actions/setup-python@v2
+            with:
+              python-version: '3.11'
+              
+          - name: Install Python Dependencies
+            run: |
+              python -m pip install --upgrade pip
+              pip install docker
+
+          - name: Create secret configuration
+            run: |
+              echo "// lib/config/config.dart" > lib/config/config.dart
+              echo "const String dogApiKey = '${{ secrets.DOG_API_KEY }}';" >> lib/config/config.dart
+
+          - name: Run Mock Api for Integration Testing
+            env:
+              GITHUB_ACTOR: ${{ github.actor }}
+              GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+            run: python scripts/docker_ctrl.py start ghcr.io/mittons/mockdogapi01:1.0 3001 8003  
+
+          - name: Install ChromeDriver
+            run: |
+              wget -N https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/120.0.6099.71/linux64/chromedriver-linux64.zip -P ~/
+              unzip ~/chromedriver-linux64.zip -d ~/
+              rm ~/chromedriver-linux64.zip
+              sudo mv -f ~/chromedriver-linux64 /usr/local/bin/chromedriver
+              sudo chown root:root /usr/local/bin/chromedriver
+              sudo chmod 0755 /usr/local/bin/chromedriver
+              
+          - name: Flutter Unit/Widget Testing
+            run: flutter test
+  
+          - name: Flutter Integration Testing
+            run: |
+              chromedriver --port=4444 --trace-buffer-size=100000 &
+              flutter drive \
+                  --verbose-system-logs \
+                  -d web-server \
+                  --driver=test_driver/integration_test.dart \
+                  --target=integration_test/app_test.dart \
+                  --dart-define=CI=true
+
+          - name: Build Flutter Web
+            run: flutter build web --release --base-href /DoggoDisplay01/
+
+          - name: Deploy to gh-pages
+            run: |
+              # Moving to build/web where the build artifacts are
+
+              cd build/web
+              
+              # Initialize a new Git repository inside the build folder, 
+              # Our workspace already has a .git directory and we are essentially working with a fresh, separate repository now.
+              git init
+              
+              
+              # Set name and email of the user interacting with git
+              git config user.name "${{ github.actor }}"
+              git config user.email "${{ github.actor }}@users.noreply.github.com"
+
+              
+              git add .
+              git commit -m 'Deploy to gh-pages'
+
+              # Add the github repository as a remote
+              git remote add gh-token "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+
+              # Force push from the current repo's master branch to the remote
+              # repo's gh-pages branch. (All previous history on the gh-pages
+              # branch will be lost, since we are overwriting it.)
+              # This is ok since github is not a version control system for builds but a version control system for code
+              git push gh-token HEAD:gh-pages --force
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # This token is provided by Actions. There is no need to create this token.

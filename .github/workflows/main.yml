@@ -28,11 +28,6 @@ jobs:
               python -m pip install --upgrade pip
               pip install docker
 
-          - name: Create secret configuration
-            run: |
-              echo "// lib/config/config.dart" > lib/config/config.dart
-              echo "const String dogApiKey = '${{ secrets.DOG_API_KEY }}';" >> lib/config/config.dart
-
           - name: Run Mock Api for Integration Testing
             env:
               GITHUB_ACTOR: ${{ github.actor }}
@@ -62,7 +57,21 @@ jobs:
                   --dart-define=CI=true
 
           - name: Build Flutter Web
-            run: flutter build web --release --base-href /DoggoDisplay01/
+            run: 
+              repoStr=${{ github.repository }}
+              repoName=${repoStr#*/}
+    
+              flutter build web --target=lib/licences.dart --release --base-href /${repoName}//LicencePage/
+    
+              mv build/web LicencePageBuild
+    
+              flutter build web --release --base-href /${repoName}/
+    
+              mv LicencePageBuild build/web/LicencePage
+    
+              mv build/web/LicencePage/index.html build/web/LICENCE.html
+    
+              echo "LICENCE data can be viewed on [LICENCE Page](https://${{ github.repository_owner }}.github.io/${repoName}/LICENCE.html)" >> build/web/README.md
 
           - name: Deploy to gh-pages
             run: |

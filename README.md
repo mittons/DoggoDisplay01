@@ -3,6 +3,8 @@
 ## About Project:
 This project displays facts about dogs using dog api. It is implemented in Flutter.
 
+Uses data from [TheDogApi.com](https://thedogapi.com/).
+
 ## Started On:
 :calendar: December 09, 2023 *(AUTO-GENERATED)* :calendar:
 

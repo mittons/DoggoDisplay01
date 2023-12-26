@@ -16,6 +16,7 @@ class DogScreen extends StatefulWidget {
 class _DogScreenState extends State<DogScreen> {
   bool dogsLoaded = false;
   late List<DogBreed> dogBreeds;
+  bool isLoadingInitialList = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +29,9 @@ class _DogScreenState extends State<DogScreen> {
         children: [
           // Display a button that enables the user to fetch and display a list of dog breeds
           _buildButtonContainer(),
+          // Display loading indicator if we are loading the list for the first time.
+          if (isLoadingInitialList)
+            const Center(child: CircularProgressIndicator()),
           // If the dog breeds list has been fetched and loaded, then display it.
           if (dogsLoaded) Expanded(child: _buildDogBreedList())
         ],
@@ -51,11 +55,22 @@ class _DogScreenState extends State<DogScreen> {
   }
 
   Future<void> _handlePress() async {
+    if (dogsLoaded != true && isLoadingInitialList != true) {
+      setState(() {
+        isLoadingInitialList = true;
+      });
+    }
+
     ServiceResult dogBreedResult = await widget.dogService.getDogBreeds();
 
     if (!context.mounted) return;
 
     if (dogBreedResult.success != true) {
+      if (isLoadingInitialList == true) {
+        setState(() {
+          isLoadingInitialList = false;
+        });
+      }
       UiHelper.displaySnackbar(context,
           "Unable to aquire dog breed list from web service. Try again later.");
       return;
@@ -64,6 +79,7 @@ class _DogScreenState extends State<DogScreen> {
     setState(() {
       dogBreeds = dogBreedResult.data!;
       dogsLoaded = true;
+      isLoadingInitialList = false;
     });
   }
 

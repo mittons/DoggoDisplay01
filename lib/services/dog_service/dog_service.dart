@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:solid_doggo_display_01/config/config.dart' as cfg;
 import 'package:http/http.dart' as http;
 import 'package:solid_doggo_display_01/models/dog_service/dog_breed.dart';
 import 'package:solid_doggo_display_01/services/service_result.dart';
@@ -13,7 +12,7 @@ class DogService {
 
   String _generateRequestURL(String route) {
     // ignore: unnecessary_brace_in_string_interps
-    return "${baseApiUrl}${route}?key=${cfg.dogApiKey}";
+    return "${baseApiUrl}${route}";
   }
 
   http.Client _getHttpClient() {

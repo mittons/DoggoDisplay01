@@ -51,7 +51,9 @@ For my next projects I need to add consistent documentation (DartDoc in this cas
 ## License
 This project is licensed under the [MIT LICENSE](LICENSE) - see the file for details.
 
-While my project incorporates the work of others through third-party dependencies, I have not included a detailed `THIRD_PARTY_LICENSES` file at this time. I am deeply committed to respecting intellectual property, honoring the licensing requirements of all dependencies, and declaring an express desire to acknowledge all contributions while repsecting, and not limiting, those who choose not to be acknowledged.
+Licenses used in the compiled version of this repository deployed to GitHub Pages can be seen at [The Licences Page](https://mittons.github.io/DoggoDisplay01/LICENCE.html) deployed on this repositoires GitHub Pages portal.
+
+While my project incorporates the work of others through third-party dependencies, I have not included a detailed `THIRD_PARTY_LICENSES` file for this source code repository at current time. I am deeply committed to respecting intellectual property, honoring the licensing requirements of all dependencies, and declaring an express desire to acknowledge all contributions while repsecting, and not limiting, those who choose not to be acknowledged.
 
 Should you have any inquiries or suggestions regarding third-party attributions, or if there's a specific attribution you believe requires immediate attention, please do not hesitate to contact me at axel@axelgauti.is. I promise to address all such communications promptly, providing either a resolution or a commitment to resolve the matter within a reasonable timeframe, subject to my availability and capacity to respond.
 
